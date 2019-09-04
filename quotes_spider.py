@@ -4,7 +4,7 @@ class QuoteSpider(scrapy.Spider):
     name = "quotes"
     
     def start_requests(self):
-        target = "FB"
+        target = "GOOG"
         url = "https://finance.yahoo.com/quote/" + target + "/history"
         yield scrapy.Request(url=url, callback=self.parse)
     

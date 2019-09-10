@@ -1,29 +1,36 @@
 import scrapy
+import plotly.graph_objects as go
+from datetime import datetime
 
 class QuoteSpider(scrapy.Spider):
     name = "stock_price"
     
     def start_requests(self):
-        target = "GOOG"
-        #enable custom stock search
-        url = "https://finance.yahoo.com/quote/" + target + "/history"
+        #user input stock search
+        self.target = input("\nPlease enter the stock symbol: ")
+        url = "https://finance.yahoo.com/quote/" + self.target + "/history"
         yield scrapy.Request(url=url, callback=self.parse)
     
     def parse(self, response):
         chart = []
         for i in range(238):    #21 useless info before + 30 days * 7 info per day
             chart.append(response.xpath('//span/text()')[i].get())  #get the i-th text
-            
-        #what the numbers mean everyday
-        info_type = chart[21:28]
         
-        day_info = []
+        open_data = []
+        high_data = []
+        low_data = []
+        close_data = []
+        month_dict = {"Jan":1, "Feb":2, "Mar":3, "Apr":4, "May":5, "Jun":6, "Jul":7, "Aug":8, "Sep":9, "Oct":10, "Nov":11, "Dec":12}
+        dates = []
         for i in range(28,238,7):
-            day = []
-            for j in range(0,7):
-                day.append(info_type[j] + ": " + chart[i+j])    #add info type in front of context
-            day_info.append(day)
+            #date example: "Sep 09, 2019"
+            dates.append(datetime(year=int(chart[i][8:]), month=month_dict[chart[i][:3]], day=int(chart[i][4:6])))
+            open_data.append(float(chart[i+1].replace(",","")))
+            high_data.append(float(chart[i+2].replace(",","")))
+            low_data.append(float(chart[i+3].replace(",","")))
+            close_data.append(float(chart[i+4].replace(",","")))
         
-        #print the information
-        for info in day_info:
-            print(info)
+        fig = go.Figure(data=[go.Candlestick(x=dates, open=open_data, high=high_data, low=low_data, close=close_data)])
+        #add title, disable bottom rangeslider
+        fig.update_layout(title=self.target + " Prices", xaxis_rangeslider_visible=False)
+        fig.show()

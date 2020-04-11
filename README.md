@@ -20,7 +20,7 @@ Display news for the stock
 
 Finished:
 
-User can input the stock code from console instead of changing the code
+User can input the stock code from console instead of changing the source code
 
 Display graphic chart for the prices, candlestick chart displays the high, low, open and close price for the stock for the day.
 
